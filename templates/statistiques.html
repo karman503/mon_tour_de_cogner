@@ -1,9 +1,7 @@
 {% extends "base.html" %}
 {% block content %}
 
-<!-- Statistiques -->
 <div class="container-fluid p-4">
-
     <!-- Titre -->
     <div class="mb-4">
         <h2 class="fw-bold">Statistiques</h2>
@@ -30,8 +28,9 @@
                 <div class="card-body d-flex justify-content-between align-items-center">
                     <div>
                         <p class="mb-1">Taux de disponibilité</p>
-                        <h3 class="fw-bold">87%</h3>
-                        <small>625/720 livres</small>
+                        <h3 class="fw-bold">{{ (livres_disponibles / total_livres * 100)|round|int if total_livres > 0
+                            else 100 }}%</h3>
+                        <small>{{ livres_disponibles }}/{{ total_livres }} livres</small>
                     </div>
                     <div class="bg-white bg-opacity-25 rounded p-2">
                         <i class="ri-pie-chart-line fs-3"></i>
@@ -44,9 +43,9 @@
             <div class="card text-white bg-success shadow-sm">
                 <div class="card-body d-flex justify-content-between align-items-center">
                     <div>
-                        <p class="mb-1">Emprunts ce mois</p>
-                        <h3 class="fw-bold">342</h3>
-                        <small>+15% vs mois dernier</small>
+                        <p class="mb-1">Emprunts en cours</p>
+                        <h3 class="fw-bold">{{ emprunts_en_cours }}</h3>
+                        <small>Emprunts actifs</small>
                     </div>
                     <div class="bg-white bg-opacity-25 rounded p-2">
                         <i class="ri-bookmark-line fs-3"></i>
@@ -59,9 +58,9 @@
             <div class="card text-white bg-warning shadow-sm">
                 <div class="card-body d-flex justify-content-between align-items-center">
                     <div>
-                        <p class="mb-1">Membres actifs</p>
-                        <h3 class="fw-bold">118</h3>
-                        <small>94% du total</small>
+                        <p class="mb-1">Total Adhérents</p>
+                        <h3 class="fw-bold">{{ total_adherents }}</h3>
+                        <small>Membres inscrits</small>
                     </div>
                     <div class="bg-white bg-opacity-25 rounded p-2">
                         <i class="ri-user-line fs-3"></i>
@@ -71,57 +70,42 @@
         </div>
 
         <div class="col-md-3">
-            <div class="card text-white bg-danger shadow-sm">
+            <div class="card text-white bg-info shadow-sm">
                 <div class="card-body d-flex justify-content-between align-items-center">
                     <div>
-                        <p class="mb-1">Retards</p>
-                        <h3 class="fw-bold">12</h3>
-                        <small>14% des emprunts</small>
+                        <p class="mb-1">Total Livres</p>
+                        <h3 class="fw-bold">{{ total_livres }}</h3>
+                        <small>Collection totale</small>
                     </div>
                     <div class="bg-white bg-opacity-25 rounded p-2">
-                        <i class="ri-alert-line fs-3"></i>
+                        <i class="ri-book-line fs-3"></i>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Graphiques répartition par catégorie et emprunts par semaine -->
+
+
+    <!-- Graphiques répartition par catégorie et adhérents actifs -->
     <div class="row g-4 mb-4">
         <div class="col-lg-6">
             <div class="card shadow-sm">
                 <div class="card-body">
-                    <h5 class="fw-semibold mb-4">Répartition par catégorie</h5>
-                    <div class="mb-2">Littérature
+                    <h5 class="fw-semibold mb-4">Répartition des emprunts par catégorie</h5>
+                    {% for stat in stats_categories %}
+                    <div class="mb-2">
+                        <div class="d-flex justify-content-between mb-1">
+                            <span>{{ stat.categorie }}</span>
+                            <span>{{ stat.count }} ({{ stat.pourcentage }}%)</span>
+                        </div>
                         <div class="progress">
-                            <div class="progress-bar bg-primary" role="progressbar" style="width:34%">245 (34%)</div>
+                            <div class="progress-bar bg-primary category-progress"
+                                data-percentage="{{ stat.pourcentage }}" role="progressbar" aria-valuenow="0"
+                                aria-valuemin="0" aria-valuemax="100"></div>
                         </div>
                     </div>
-                    <div class="mb-2">Sciences
-                        <div class="progress">
-                            <div class="progress-bar bg-success" role="progressbar" style="width:22%">156 (22%)</div>
-                        </div>
-                    </div>
-                    <div class="mb-2">Histoire
-                        <div class="progress">
-                            <div class="progress-bar bg-warning" role="progressbar" style="width:14%">98 (14%)</div>
-                        </div>
-                    </div>
-                    <div class="mb-2">Fantasy
-                        <div class="progress">
-                            <div class="progress-bar bg-purple" role="progressbar" style="width:12%">87 (12%)</div>
-                        </div>
-                    </div>
-                    <div class="mb-2">Science-Fiction
-                        <div class="progress">
-                            <div class="progress-bar bg-danger" role="progressbar" style="width:11%">76 (11%)</div>
-                        </div>
-                    </div>
-                    <div class="mb-2">Philosophie
-                        <div class="progress">
-                            <div class="progress-bar bg-secondary" role="progressbar" style="width:8%">58 (8%)</div>
-                        </div>
-                    </div>
+                    {% endfor %}
                 </div>
             </div>
         </div>
@@ -129,49 +113,96 @@
         <div class="col-lg-6">
             <div class="card shadow-sm">
                 <div class="card-body">
-                    <h5 class="fw-semibold mb-4">Emprunts par semaine</h5>
-                    <div class="mb-2 d-flex justify-content-between align-items-center">
-                        <span>Sem 1</span>
-                        <div class="flex-grow-1 mx-2">
-                            <div class="progress mb-1">
-                                <div class="progress-bar bg-primary" style="width:57.5%">23</div>
-                            </div>
-                            <div class="progress">
-                                <div class="progress-bar bg-success" style="width:45%">18</div>
-                            </div>
+                    <h5 class="fw-semibold mb-4">Adhérents les plus actifs</h5>
+                    {% for stat in stats_adherents %}
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span>{{ stat.adherent.nom }} {{ stat.adherent.prenom }}</span>
+                            <span class="badge bg-primary">{{ stat.total }} emprunts</span>
+                        </div>
+                        <div class="progress">
+                            <div class="progress-bar bg-success adherent-progress"
+                                data-percentage="{{ stat.pourcentage }}" role="progressbar" aria-valuenow="0"
+                                aria-valuemin="0" aria-valuemax="100"></div>
                         </div>
                     </div>
-                    <div class="mb-2 d-flex justify-content-between align-items-center">
-                        <span>Sem 2</span>
-                        <div class="flex-grow-1 mx-2">
-                            <div class="progress mb-1">
-                                <div class="progress-bar bg-primary" style="width:77.5%">31</div>
-                            </div>
-                            <div class="progress">
-                                <div class="progress-bar bg-success" style="width:62.5%">25</div>
-                            </div>
-                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        <div class="progress">
+            <div class="progress-bar bg-success" role="progressbar" style="width:22%">156 (22%)</div>
+        </div>
+    </div>
+    <div class="mb-2">Histoire
+        <div class="progress">
+            <div class="progress-bar bg-warning" role="progressbar" style="width:14%">98 (14%)</div>
+        </div>
+    </div>
+    <div class="mb-2">Fantasy
+        <div class="progress">
+            <div class="progress-bar bg-purple" role="progressbar" style="width:12%">87 (12%)</div>
+        </div>
+    </div>
+    <div class="mb-2">Science-Fiction
+        <div class="progress">
+            <div class="progress-bar bg-danger" role="progressbar" style="width:11%">76 (11%)</div>
+        </div>
+    </div>
+    <div class="mb-2">Philosophie
+        <div class="progress">
+            <div class="progress-bar bg-secondary" role="progressbar" style="width:8%">58 (8%)</div>
+        </div>
+    </div>
+</div>
+</div>
+</div>
+
+<div class="col-lg-6">
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <h5 class="fw-semibold mb-4">Emprunts par semaine</h5>
+            <div class="mb-2 d-flex justify-content-between align-items-center">
+                <span>Sem 1</span>
+                <div class="flex-grow-1 mx-2">
+                    <div class="progress mb-1">
+                        <div class="progress-bar bg-primary" style="width:57.5%">23</div>
                     </div>
-                    <!-- Ajoute Sem 3 à Sem 6 de la même manière -->
+                    <div class="progress">
+                        <div class="progress-bar bg-success" style="width:45%">18</div>
+                    </div>
+                </div>
+            </div>
+            <div class="mb-2 d-flex justify-content-between align-items-center">
+                <span>Sem 2</span>
+                <div class="flex-grow-1 mx-2">
+                    <div class="progress mb-1">
+                        <div class="progress-bar bg-primary" style="width:77.5%">31</div>
+                    </div>
+                    <div class="progress">
+                        <div class="progress-bar bg-success" style="width:62.5%">25</div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
+</div>
+</div>
 
-    <!-- Rapports et exports -->
-    <div class="card shadow-sm">
-        <div class="card-body d-flex justify-content-between align-items-center">
-            <div>
-                <h5 class="fw-semibold mb-1">Rapports et exports</h5>
-                <p class="text-muted mb-0">Générez des rapports détaillés pour vos analyses</p>
-            </div>
-            <div class="btn-group">
-                <button class="btn btn-outline-secondary btn-sm"><i class="ri-file-excel-line me-1"></i> Excel</button>
-                <button class="btn btn-outline-secondary btn-sm"><i class="ri-file-pdf-line me-1"></i> PDF</button>
-                <button class="btn btn-primary btn-sm"><i class="ri-printer-line me-1"></i> Imprimer</button>
-            </div>
+<!-- Rapports et exports -->
+<div class="card shadow-sm">
+    <div class="card-body d-flex justify-content-between align-items-center">
+        <div>
+            <h5 class="fw-semibold mb-1">Rapports et exports</h5>
+            <p class="text-muted mb-0">Générez des rapports détaillés pour vos analyses</p>
+        </div>
+        <div class="btn-group">
+            <button class="btn btn-outline-secondary btn-sm"><i class="ri-file-excel-line me-1"></i> Excel</button>
+            <button class="btn btn-outline-secondary btn-sm"><i class="ri-file-pdf-line me-1"></i> PDF</button>
+            <button class="btn btn-primary btn-sm"><i class="ri-printer-line me-1"></i> Imprimer</button>
         </div>
     </div>
+</div>
 
 </div>
 

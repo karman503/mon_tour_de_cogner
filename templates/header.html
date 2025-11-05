@@ -10,59 +10,65 @@
     <link rel="stylesheet" href="/static/css/style.css">
 </head>
 
-<body>
-
-    <header class="bg-white shadow-sm border-bottom border-light">
-        <div class="container py-2">
-            <nav class="navbar navbar-expand-md navbar-light">
-                <!-- Logo -->
-                <a class="navbar-brand d-flex align-items-center" href="#">
-                    <div class="bg-primary d-flex align-items-center justify-content-center rounded me-2"
-                        style="width: 32px; height: 32px;">
-                        <i class="ri-bank-line text-white fs-5"></i>
-                    </div>
-                    <h1 class="h5 mb-0 fw-bold text-dark" style="font-family: Pacifico, serif;">BibliosDjib</h1>
-                </a>
-
-                <!-- Bouton toggle (mobile) -->
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
-                    aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-
-                <!-- Menu de navigation -->
-                <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
-                    <ul class="navbar-nav mb-2 mb-md-0">
-                        <li class="nav-item">
-                            <a class="nav-link {% if title=='Accueil' %}active text-primary bg-primary-subtle{% else %}text-secondary{% endif %} px-3 py-2"
-                                href="/">
-                                <i class="ri-home-line me-1"></i> Accueil
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link {% if title=='Catalogue' %}active text-primary bg-primary-subtle{% else %}text-secondary{% endif %} px-3 py-2"
-                                href="/catalogue">
-                                <i class="ri-book-line me-1"></i> Catalogue
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link {% if title=='À propos' %}active text-primary bg-primary-subtle{% else %}text-secondary{% endif %} px-3 py-2"
-                                href="/propos">
-                                <i class="ri-information-line me-1"></i> À propos
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link {% if title=='Contact' %}active text-primary bg-primary-subtle{% else %}text-secondary{% endif %} px-3 py-2"
-                                href="/contact">
-                                <i class="ri-mail-line me-1"></i> Contact
-                            </a>
-                        </li>
-                    </ul>
-
-                    <!-- Bouton Connexion -->
-                    <a href="{{ url_for('login') }}" class="btn btn-primary ms-md-3">Connexion</a>
+<header class="bg-white shadow-sm border-bottom border-light">
+    <div class="container py-2">
+        <nav class="navbar navbar-expand-md navbar-light">
+            <!-- Logo -->
+            <a class="navbar-brand d-flex align-items-center" href="#">
+                <div class="bg-primary d-flex align-items-center justify-content-center rounded me-2"
+                    style="width: 32px; height: 32px;">
+                    <i class="ri-bank-line text-white fs-5"></i>
                 </div>
-            </nav>
+                <h1 class="h5 mb-0 fw-bold text-dark" style="font-family: Pacifico, serif;">BibliosDjib</h1>
+            </a>
 
-        </div>
-    </header>
+            <!-- Bouton toggle (mobile) -->
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <!-- Menu de navigation -->
+            <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+                <ul class="navbar-nav mb-2 mb-md-0">
+                    <li class="nav-item">
+                        <a class="nav-link {% if title=='Accueil' %}active text-primary bg-primary-subtle{% else %}text-secondary{% endif %} px-3 py-2"
+                            href="/">
+                            <i class="ri-home-line me-1"></i> Accueil
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if title=='Catalogue' %}active text-primary bg-primary-subtle{% else %}text-secondary{% endif %} px-3 py-2"
+                            href="/catalogue">
+                            <i class="ri-book-line me-1"></i> Catalogue
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if title=='À propos' %}active text-primary bg-primary-subtle{% else %}text-secondary{% endif %} px-3 py-2"
+                            href="/propos">
+                            <i class="ri-information-line me-1"></i> À propos
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if title=='Contact' %}active text-primary bg-primary-subtle{% else %}text-secondary{% endif %} px-3 py-2"
+                            href="/contact">
+                            <i class="ri-mail-line me-1"></i> Contact
+                        </a>
+                    </li>
+                </ul>
+
+                <!-- Bouton Connexion/Déconnexion -->
+                {% if current_user.is_authenticated %}
+                <a href="{{ url_for('logout') }}" class="btn btn-danger ms-md-3">
+                    <i class="ri-logout-box-line me-1"></i>Déconnexion
+                </a>
+                {% else %}
+                <a href="{{ url_for('login') }}" class="btn btn-primary ms-md-3">
+                    <i class="ri-login-box-line me-1"></i>Connexion
+                </a>
+                {% endif %}
+            </div>
+        </nav>
+
+    </div>
+</header>
