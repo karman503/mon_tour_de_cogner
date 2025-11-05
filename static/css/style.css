@@ -12,3 +12,21 @@
     transform: translateY(-5px);
     transition: all 0.3s ease;
 }
+
+.sidebar {
+    width: 260px;
+    min-height: 100vh;
+    position: fixed;
+    left: 0;
+    top: 0;
+    background: #fff;
+}
+
+.content {
+    margin-left: 260px;
+    padding: 20px;
+}
+
+.sidebar a {
+    border-radius: 8px;
+}
