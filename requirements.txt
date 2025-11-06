@@ -1,0 +1,17 @@
+# Dépendances Python détectées dans le projet
+Flask
+Flask-SQLAlchemy
+Flask-Login
+Werkzeug
+mysql-connector-python
+
+# Assets front-end inclus dans le dépôt
+# Bootstrap est fourni comme fichiers statiques (CSS/JS) dans /static
+# Version détectée dans les fichiers statiques: 5.2.3
+# bootstrap==5.2.3  # (fichiers inclus dans static/css et static/js)
+
+# NOTE:
+# - Les modules de la librairie standard (par ex. datetime) ne sont pas listés.
+# - Si vous souhaitez des versions précises, exécutez dans l'environnement virtuel:
+#     pip freeze > requirements.txt
+#   puis adaptez/supprimez les lignes ci-dessus selon vos besoins.
