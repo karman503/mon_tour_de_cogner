@@ -4,6 +4,7 @@ Flask-SQLAlchemy
 Flask-Login
 Werkzeug
 mysql-connector-python
+mysqlclient  # Requis pour Flask-SQLAlchemy avec MySQL
 
 # Assets front-end inclus dans le dépôt
 # Bootstrap est fourni comme fichiers statiques (CSS/JS) dans /static
