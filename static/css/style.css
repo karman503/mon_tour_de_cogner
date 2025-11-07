@@ -67,3 +67,76 @@
 .progress-bar {
     transition: width 0.6s ease;
 }
+
+/* Hero image circular and responsive */
+.hero-image {
+    /* make the hero image large, perfectly circular and responsive
+       it will take available column width up to a cap and keep 1:1 ratio */
+    width: 100%;
+    max-width: 420px;
+    aspect-ratio: 1 / 1;
+    display: block;
+    margin: 0 auto;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 6px solid rgba(255, 255, 255, 0.9);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.18);
+}
+
+/* Animated title */
+.static-text {
+    display: inline-block;
+    margin-right: 8px;
+}
+
+#animated-title {
+    display: inline-block;
+    color: #0d6efd;
+    font-weight: 700;
+    transition: opacity 0.4s ease, transform 0.4s ease;
+}
+
+/* Card equalization to match 'Livres à la une' */
+:root {
+    --featured-img-height: 260px;
+    --featured-card-min-height: 380px;
+}
+
+.card-match-featured {
+    height: 100%;
+}
+
+.card-match-featured .card-body {
+    height: 100%;
+    padding: 1.5rem;
+}
+
+/* Stronger visible shadow for all cards */
+.card {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+/* Progressive section backgrounds */
+.section-1 {
+    background: #ffffff;
+}
+
+.section-2 {
+    background: #fbfbfd;
+}
+
+.section-3 {
+    background: #f7f8fb;
+}
+
+.section-4 {
+    background: #f2f4f9;
+}
+
+/* Small responsive tweaks */
+@media (max-width: 767px) {
+    .hero-image {
+        width: 70%;
+        max-width: 260px;
+    }
+}

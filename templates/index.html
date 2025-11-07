@@ -2,14 +2,20 @@
 
 <main>
     <!-- section hero -->
-    <section class="py-5">
+    <section class="py-5 section-1">
         <div class="container">
             <div class="row align-items-center">
                 <!-- Colonne texte -->
                 <div class="col-md-6">
-                    <h1 class="display-4 fw-bold mb-3">Bienvenue à BibliosDjib</h1>
-                    <p class="lead mb-4 text-muted">
-                        Découvrez notre collection de livres et gérez vos emprunts en toute simplicité
+                    <h1 class="display-4 fw-bold mb-3">
+                        <span class="static-text">Bienvenue à</span>
+                        <span id="animated-title"
+                            data-phrases="BibliosDjib|Votre bibliothèque communautaire|La porte des découvertes|Lire, partager, grandir">BibliosDjib</span>
+                    </h1>
+                    <p class="lead mb-4 text-muted" id="hero-description">
+                        BibliosDjib est une bibliothèque moderne et engagée qui met la lecture au coeur de la
+                        communauté. Nous offrons un catalogue riche et varié, des services numériques intuitifs,
+                        des horaires étendus et des activités culturelles pour tous les âges.
                     </p>
                     <div class="d-flex flex-column flex-sm-row gap-2">
                         <a href="#" class="btn btn-primary btn-lg px-4 py-2 mb-2 mb-sm-0">Explorer le catalogue</a>
@@ -20,7 +26,7 @@
                 <!-- Colonne image -->
                 <div class="col-md-6 text-center">
                     <img src="https://images.unsplash.com/photo-1507842217343-583bb7270b66?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1200&q=80"
-                        alt="BibliosDjib" class="img-fluid rounded">
+                        alt="BibliosDjib" class="img-fluid hero-image">
                 </div>
             </div>
         </div>
@@ -28,7 +34,7 @@
 
 
     <!-- Nos services -->
-    <section class="py-5 bg-white">
+    <section class="py-5 section-2">
         <div class="container">
             <div class="text-center mb-5">
                 <h2 class="h2 fw-bold mb-3">Nos services</h2>
@@ -37,7 +43,7 @@
             </div>
             <div class="row g-4">
                 <div class="col-md-4">
-                    <div class="card border shadow-sm text-center h-100 card-hover">
+                    <div class="card border shadow-sm text-center h-100 card-hover card-match-featured">
                         <div class="card-body">
                             <div class="bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3"
                                 style="width: 64px; height: 64px;">
@@ -50,7 +56,7 @@
                     </div>
                 </div>
                 <div class="col-md-4">
-                    <div class="card border shadow-sm text-center h-100 card-hover">
+                    <div class="card border shadow-sm text-center h-100 card-hover card-match-featured">
                         <div class="card-body">
                             <div class="bg-success bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3"
                                 style="width: 64px; height: 64px;">
@@ -63,7 +69,7 @@
                     </div>
                 </div>
                 <div class="col-md-4">
-                    <div class="card border shadow-sm text-center h-100 card-hover">
+                    <div class="card border shadow-sm text-center h-100 card-hover card-match-featured">
                         <div class="card-body">
                             <div class="bg-purple bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3"
                                 style="width: 64px; height: 64px;">
@@ -80,7 +86,7 @@
     </section>
 
     <!-- Livres à la une -->
-    <section class="py-5 bg-light">
+    <section class="py-5 section-3">
         <div class="container">
             <div class="text-center mb-5">
                 <h2 class="h2 fw-bold mb-3">Livres à la une</h2>
@@ -161,7 +167,7 @@
 
 
     <!-- Objectif -->
-    <section class="py-5 bg-light">
+    <section class="py-5 section-4">
         <div class="container">
             <div class="text-center mb-5">
                 <h2 class="h2 fw-bold mb-3">Notre Objectif</h2>
@@ -173,7 +179,7 @@
             </div>
             <div class="row g-4 text-center">
                 <div class="col-md-4">
-                    <div class="card border shadow-sm h-100 card-hover p-3">
+                    <div class="card border shadow-sm h-100 card-hover p-3 card-match-featured">
                         <div class="mb-3"><i class="ri-book-open-line text-primary fs-2"></i></div>
                         <h5 class="fw-semibold mb-2">Accès facile</h5>
                         <p class="text-muted mb-0">Un catalogue complet et facile à naviguer pour trouver vos livres
@@ -181,7 +187,7 @@
                     </div>
                 </div>
                 <div class="col-md-4">
-                    <div class="card border shadow-sm h-100 card-hover p-3">
+                    <div class="card border shadow-sm h-100 card-hover p-3 card-match-featured">
                         <div class="mb-3"><i class="ri-group-line text-success fs-2"></i></div>
                         <h5 class="fw-semibold mb-2">Communauté</h5>
                         <p class="text-muted mb-0">Rejoignez une communauté de lecteurs passionnés et partagez vos
@@ -189,7 +195,7 @@
                     </div>
                 </div>
                 <div class="col-md-4">
-                    <div class="card border shadow-sm h-100 card-hover p-3">
+                    <div class="card border shadow-sm h-100 card-hover p-3 card-match-featured">
                         <div class="mb-3"><i class="ri-time-line text-warning fs-2"></i></div>
                         <h5 class="fw-semibold mb-2">Flexibilité</h5>
                         <p class="text-muted mb-0">Des horaires étendus et des services en ligne pour s’adapter à votre
