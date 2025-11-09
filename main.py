@@ -230,25 +230,57 @@ def adherents():
 @login_required
 def emprunts():
     if request.method == 'POST':
+        try:
+            adherent_id = int(request.form['adherent_id'])
+            livre_id = int(request.form['livre_id'])
+            date_retour_str = request.form['date_retour']
+            date_retour_prevue = datetime.strptime(date_retour_str, '%Y-%m-%d')
+        except (ValueError, KeyError):
+            # Gérer l'erreur : champs manquants ou format incorrect
+            return "Données invalides", 400
+
+        livre = Livre.query.get(livre_id)
+        if not livre or not livre.disponible:
+            return "Livre non disponible", 400
+
         nouvel_emprunt = Emprunt(
-            adherent_id=request.form['adherent_id'],
-            livre_id=request.form['livre_id'],
-            date_retour_prevue=datetime.strptime(request.form['date_retour'], '%Y-%m-%d')
+            adherent_id=adherent_id,
+            livre_id=livre_id,
+            date_retour_prevue=date_retour_prevue
         )
-        livre = Livre.query.get(request.form['livre_id'])
-        livre.disponible = False
+
+        livre.disponible = False  # Marquer le livre comme emprunté
         db.session.add(nouvel_emprunt)
         db.session.commit()
+
         return redirect(url_for('emprunts'))
-    
+
+    # Requêtes pour l'affichage
     emprunts_liste = Emprunt.query.all()
     adherents_liste = Adherent.query.all()
     livres_disponibles = Livre.query.filter_by(disponible=True).all()
-    return render_template("emprunts.html", 
-                         title="Emprunts", 
-                         emprunts=emprunts_liste,
-                         adherents=adherents_liste,
-                         livres=livres_disponibles)
+
+    # Exemple de réservations fictives
+    reservations_liste = [
+        {
+            'livre': Livre.query.first(),
+            'adherent': Adherent.query.first(),
+            'date_reservation': datetime.utcnow(),
+            'priorite': 1,
+            'status': 'en_attente'
+        }
+    ]
+
+    # 🔧 Ici on passe l'heure actuelle sans parenthèses à utiliser dans le template
+    return render_template(
+        "emprunts.html",
+        title="Emprunts",
+        emprunts=emprunts_liste,
+        adherents=adherents_liste,
+        livres=livres_disponibles,
+        reservations=reservations_liste,
+        now=datetime.utcnow()  # on passe l'objet datetime ici
+    )
 
 @app.route("/dashboard/emprunts/retour/<int:emprunt_id>")
 @login_required
