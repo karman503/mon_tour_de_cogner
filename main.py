@@ -219,8 +219,21 @@ def logout():
 @app.route("/dashboard")
 @login_required
 def dashboard():
-    return render_template("dashboard.html", title="Dashboard", user=current_user)
+    # Calcul des statistiques pour le dashboard
+    total_livres = Livre.query.count()
+    livres_disponibles = Livre.query.filter_by(disponible=True).count()
+    total_adherents = Adherent.query.count()
+    emprunts_en_cours = Emprunt.query.filter_by(status='en_cours').count()
 
+    return render_template(
+        "dashboard.html",
+        title="Dashboard",
+        user=current_user,
+        total_livres=total_livres,
+        livres_disponibles=livres_disponibles,
+        total_adherents=total_adherents,
+        emprunts_en_cours=emprunts_en_cours
+    )
 
 @app.route("/dashboard/adherents", methods=['GET', 'POST'])
 @login_required
