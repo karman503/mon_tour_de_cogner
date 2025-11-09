@@ -87,6 +87,8 @@ class Emprunt(db.Model):
     date_retour_prevue = db.Column(db.DateTime, nullable=False)
     date_retour_effective = db.Column(db.DateTime)
     status = db.Column(db.String(20), default='en_cours')  # en_cours, retourne, retard
+    prolongations = db.Column(db.Integer, default=0)  # ✅ Ajout de l'attribut prolongations
+    amende = db.Column(db.Float, default=0.0)  # ✅ Ajout de l'attribut amende
 
 # Route pour créer un admin (à retirer en production)
 @app.route('/setup/admin', methods=['GET', 'POST'])
@@ -249,7 +251,6 @@ def emprunts():
             date_retour_str = request.form['date_retour']
             date_retour_prevue = datetime.strptime(date_retour_str, '%Y-%m-%d')
         except (ValueError, KeyError):
-            # Gérer l'erreur : champs manquants ou format incorrect
             return "Données invalides", 400
 
         livre = Livre.query.get(livre_id)
@@ -262,7 +263,7 @@ def emprunts():
             date_retour_prevue=date_retour_prevue
         )
 
-        livre.disponible = False  # Marquer le livre comme emprunté
+        livre.disponible = False
         db.session.add(nouvel_emprunt)
         db.session.commit()
 
@@ -272,8 +273,6 @@ def emprunts():
     emprunts_liste = Emprunt.query.all()
     adherents_liste = Adherent.query.all()
     livres_disponibles = Livre.query.filter_by(disponible=True).all()
-
-    # Exemple de réservations fictives
     reservations_liste = [
         {
             'livre': Livre.query.first(),
@@ -284,7 +283,7 @@ def emprunts():
         }
     ]
 
-    # 🔧 Ici on passe l'heure actuelle sans parenthèses à utiliser dans le template
+    # ✅ On passe today pour les champs date dans le template
     return render_template(
         "emprunts.html",
         title="Emprunts",
@@ -292,7 +291,8 @@ def emprunts():
         adherents=adherents_liste,
         livres=livres_disponibles,
         reservations=reservations_liste,
-        now=datetime.utcnow()  # on passe l'objet datetime ici
+        now=datetime.utcnow(),
+        today=datetime.utcnow().date()  # <-- ajouté ici
     )
 
 @app.route("/dashboard/livres", methods=['GET', 'POST'])
