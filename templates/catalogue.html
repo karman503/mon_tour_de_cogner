@@ -49,11 +49,11 @@
     <div class="row g-3">
         <!-- Carte livre : Cigaal Shidaad -->
         <div class="col-12 col-sm-6 col-md-4 col-lg-3">
-            <div class="card h-100 shadow-sm border">
+            <div class="card h-100 shadow-sm border book-card" data-book-id="1">
                 <img src="/static/images/cigaal_shidaad.jpg" class="card-img-top" alt="Cigaal Shidaad">
                 <div class="card-body d-flex flex-column">
                     <h5 class="card-title">Cigaal Shidaad</h5>
-                    <p class="card-text text-muted mb-1">Bibliotheque minucipal</p>
+                    <p class="card-text text-muted mb-1">Bibliothèque municipal</p>
                     <p class="text-muted small mb-2">ISBN: 978-2-07-040850-1</p>
                     <div class="d-flex justify-content-between mb-2">
                         <span class="badge bg-secondary">Littérature</span>
@@ -66,7 +66,7 @@
                     <div class="mt-auto d-flex gap-2">
                         <button class="btn btn-primary flex-fill">Emprunter</button>
                         <button class="btn btn-outline-secondary"><i class="ri-edit-line"></i></button>
-                        <button class="btn btn-outline-secondary"><i class="ri-eye-line"></i></button>
+                        <button class="btn btn-outline-secondary view-details-btn"><i class="ri-eye-line"></i></button>
                     </div>
                 </div>
             </div>
@@ -74,7 +74,7 @@
 
         <!-- Carte livre : Les Misérables -->
         <div class="col-12 col-sm-6 col-md-4 col-lg-3">
-            <div class="card h-100 shadow-sm border">
+            <div class="card h-100 shadow-sm border book-card" data-book-id="2">
                 <img src="/static/images/miserables.jpg" class="card-img-top" alt="Les Misérables">
                 <div class="card-body d-flex flex-column">
                     <h5 class="card-title">Les Misérables</h5>
@@ -91,7 +91,7 @@
                     <div class="mt-auto d-flex gap-2">
                         <button class="btn btn-primary flex-fill" disabled>Emprunter</button>
                         <button class="btn btn-outline-secondary"><i class="ri-edit-line"></i></button>
-                        <button class="btn btn-outline-secondary"><i class="ri-eye-line"></i></button>
+                        <button class="btn btn-outline-secondary view-details-btn"><i class="ri-eye-line"></i></button>
                     </div>
                 </div>
             </div>
@@ -99,7 +99,7 @@
 
         <!-- Carte livre : L'Étranger -->
         <div class="col-12 col-sm-6 col-md-4 col-lg-3">
-            <div class="card h-100 shadow-sm border">
+            <div class="card h-100 shadow-sm border book-card" data-book-id="3">
                 <img src="/static/images/etranger.jpg" class="card-img-top" alt="L'Étranger">
                 <div class="card-body d-flex flex-column">
                     <h5 class="card-title">L'Étranger</h5>
@@ -116,7 +116,7 @@
                     <div class="mt-auto d-flex gap-2">
                         <button class="btn btn-primary flex-fill" disabled>Emprunter</button>
                         <button class="btn btn-outline-secondary"><i class="ri-edit-line"></i></button>
-                        <button class="btn btn-outline-secondary"><i class="ri-eye-line"></i></button>
+                        <button class="btn btn-outline-secondary view-details-btn"><i class="ri-eye-line"></i></button>
                     </div>
                 </div>
             </div>
@@ -124,7 +124,7 @@
 
         <!-- Carte livre : Ismael Omar Guelleh -->
         <div class="col-12 col-sm-6 col-md-4 col-lg-3">
-            <div class="card h-100 shadow-sm border">
+            <div class="card h-100 shadow-sm border book-card" data-book-id="4">
                 <img src="/static/images/ismael_livre.jpeg" class="card-img-top"
                     alt="Ismael Omar Guelleh - Une histoire de Djibouti">
                 <div class="card-body d-flex flex-column">
@@ -142,12 +142,180 @@
                     <div class="mt-auto d-flex gap-2">
                         <button class="btn btn-primary flex-fill">Emprunter</button>
                         <button class="btn btn-outline-secondary"><i class="ri-edit-line"></i></button>
-                        <button class="btn btn-outline-secondary"><i class="ri-eye-line"></i></button>
+                        <button class="btn btn-outline-secondary view-details-btn"><i class="ri-eye-line"></i></button>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- Modal pour afficher les détails du livre -->
+    <div class="modal fade" id="bookDetailsModal" tabindex="-1" aria-labelledby="bookDetailsModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="bookDetailsModalLabel">Détails du livre</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <img id="modalBookImage" src="" class="img-fluid rounded" alt="Couverture du livre">
+                        </div>
+                        <div class="col-md-8">
+                            <h4 id="modalBookTitle" class="mb-2"></h4>
+                            <p id="modalBookAuthor" class="text-muted mb-1"></p>
+                            <p id="modalBookIsbn" class="text-muted small mb-3"></p>
+
+                            <div class="mb-3">
+                                <div class="d-flex gap-2 mb-2">
+                                    <span id="modalBookCategory" class="badge bg-secondary"></span>
+                                    <span id="modalBookStatus" class="badge"></span>
+                                </div>
+                                <div class="d-flex justify-content-between text-muted small mb-3">
+                                    <span><i class="ri-map-pin-line me-1"></i><span
+                                            id="modalBookLocation"></span></span>
+                                    <span><i class="ri-calendar-line me-1"></i><span id="modalBookYear"></span></span>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <h6>Aperçu général</h6>
+                                <p id="modalBookOverview" class="small"></p>
+                            </div>
+
+                            <div>
+                                <h6>Résumé</h6>
+                                <p id="modalBookSummary" class="small"></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+                    <button id="modalBorrowBtn" type="button" class="btn btn-primary">Emprunter</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </main>
+
+<script>
+    // Données des livres
+    const booksData = {
+        1: {
+            title: "Cigaal Shidaad",
+            author: "Bibliothèque municipal",
+            isbn: "978-2-07-040850-1",
+            category: "Littérature",
+            status: "Disponible",
+            location: "A-001",
+            year: "1943",
+            image: "/static/images/cigaal_shidaad.jpg",
+            overview: "Un roman classique de la littérature somalie qui explore les traditions et les défis de la société contemporaine.",
+            summary: "Cigaal Shidaad est une œuvre majeure de la littérature somalie qui raconte l'histoire d'une famille confrontée aux changements sociaux et politiques. À travers des personnages complexes et des situations poignantes, l'auteur explore les thèmes de l'identité, de la tradition et de la modernité dans un contexte de transformation sociale rapide."
+        },
+        2: {
+            title: "Les Misérables",
+            author: "Victor Hugo",
+            isbn: "978-2-07-040853-2",
+            category: "Littérature",
+            status: "Emprunté",
+            location: "B-002",
+            year: "1862",
+            image: "/static/images/miserables.jpg",
+            overview: "Un chef-d'œuvre de la littérature française qui suit la vie de Jean Valjean, un ancien forçat cherchant la rédemption.",
+            summary: "Les Misérables est un roman emblématique de Victor Hugo qui dépeint la société française du XIXe siècle à travers le parcours de Jean Valjean. Condamné pour avoir volé un pain, il tente de reconstruire sa vie tout en étant poursuivi par l'inflexible inspecteur Javert. L'œuvre aborde des thèmes profonds comme la justice, la misère sociale, l'amour et la rédemption."
+        },
+        3: {
+            title: "L'Étranger",
+            author: "Albert Camus",
+            isbn: "978-2-07-036002-0",
+            category: "Littérature",
+            status: "Réservé",
+            location: "C-003",
+            year: "1942",
+            image: "/static/images/etranger.jpg",
+            overview: "Un roman philosophique qui explore l'absurdité de la condition humaine à travers l'histoire de Meursault.",
+            summary: "L'Étranger d'Albert Camus est un roman fondateur de la philosophie de l'absurde. Il raconte l'histoire de Meursault, un homme indifférent aux conventions sociales qui commet un meurtre apparemment sans motif. Le récit explore la confrontation entre l'individu et une société qui exige des émotions et des comportements conformes, posant des questions fondamentales sur le sens de la vie et la nature de la justice."
+        },
+        4: {
+            title: "Ismael Omar Guelleh",
+            author: "Une histoire de Djibouti",
+            isbn: "978-2-07-041234-5",
+            category: "Histoire",
+            status: "Disponible",
+            location: "D-004",
+            year: "2010",
+            image: "/static/images/ismael_livre.jpeg",
+            overview: "Une biographie détaillée du président Ismael Omar Guelleh et son rôle dans l'histoire de Djibouti.",
+            summary: "Cette biographie retrace le parcours d'Ismael Omar Guelleh, président de Djibouti, et son influence sur le développement du pays. L'ouvrage explore son rôle dans la politique régionale, les relations internationales et les transformations économiques de Djibouti. À travers cette figure politique majeure, le livre offre également une perspective sur l'histoire contemporaine de la Corne de l'Afrique et les défis géopolitiques de la région."
+        }
+    };
+
+    // === Gestion du modal et clic sur cartes ===
+    document.addEventListener('DOMContentLoaded', function () {
+        const bookCards = document.querySelectorAll('.book-card, .view-details-btn');
+        const modal = new bootstrap.Modal(document.getElementById('bookDetailsModal'));
+
+        bookCards.forEach(card => {
+            card.addEventListener('click', function (e) {
+                if (e.target.closest('.btn') && !e.target.closest('.view-details-btn')) return;
+
+                const bookId = this.closest('.book-card').getAttribute('data-book-id');
+                const book = booksData[bookId];
+
+                if (book) {
+                    document.getElementById('modalBookTitle').textContent = book.title;
+                    document.getElementById('modalBookAuthor').textContent = book.author;
+                    document.getElementById('modalBookIsbn').textContent = 'ISBN: ' + book.isbn;
+                    document.getElementById('modalBookCategory').textContent = book.category;
+                    document.getElementById('modalBookLocation').textContent = book.location;
+                    document.getElementById('modalBookYear').textContent = book.year;
+                    document.getElementById('modalBookOverview').textContent = book.overview;
+                    document.getElementById('modalBookSummary').textContent = book.summary;
+                    document.getElementById('modalBookImage').src = book.image;
+                    document.getElementById('modalBookImage').alt = book.title;
+
+                    const statusBadge = document.getElementById('modalBookStatus');
+                    statusBadge.textContent = book.status;
+                    statusBadge.className = 'badge';
+                    if (book.status === 'Disponible') statusBadge.classList.add('bg-success');
+                    else if (book.status === 'Emprunté') statusBadge.classList.add('bg-danger');
+                    else if (book.status === 'Réservé') statusBadge.classList.add('bg-warning', 'text-dark');
+
+                    const borrowBtn = document.getElementById('modalBorrowBtn');
+                    borrowBtn.disabled = (book.status !== 'Disponible');
+                    borrowBtn.textContent = (book.status === 'Disponible') ? 'Emprunter' : 'Non disponible';
+
+                    modal.show();
+                }
+            });
+        });
+
+        // === Recherche : n'afficher que les livres correspondant ===
+        const searchInput = document.getElementById("search");
+        const bookElements = document.querySelectorAll(".book-card");
+
+        searchInput.addEventListener("input", function () {
+            const searchTerm = this.value.trim().toLowerCase();
+
+            bookElements.forEach(card => {
+                const title = card.querySelector(".card-title").textContent.toLowerCase();
+
+                if (searchTerm === "" || title.includes(searchTerm)) {
+                    card.parentElement.style.display = "block";
+                    card.classList.add("border-primary", "shadow-lg");
+                } else {
+                    card.parentElement.style.display = "none";
+                    card.classList.remove("border-primary", "shadow-lg");
+                }
+            });
+        });
+    });
+</script>
+
+
 {% include "footer.html" %}

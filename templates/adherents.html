@@ -20,7 +20,7 @@
                     <label class="form-label">Rechercher</label>
                     <div class="input-group">
                         <span class="input-group-text"><i class="ri-search-line"></i></span>
-                        <input type="text" class="form-control" placeholder="Nom, email, numéro...">
+                        <input type="text" class="form-control" placeholder="Nom, email, téléphone...">
                     </div>
                 </div>
 
@@ -50,7 +50,7 @@
 
             <!-- Boutons -->
             <div class="mt-4 d-flex gap-2">
-                <button class="btn btn-primary">
+                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#nouvelAdherentModal">
                     <i class="ri-user-add-line me-1"></i> Nouvel adhérent
                 </button>
 
@@ -77,118 +77,121 @@
                         <th>Contact</th>
                         <th>Classe</th>
                         <th>Emprunts</th>
-                        <th>Statut</th>
+                        <th>Date inscription</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
 
                 <tbody>
-
-                    <!--  Exemple entrée -->
+                    {% for a in adherents %}
                     <tr>
                         <td>
                             <div class="d-flex align-items-center">
                                 <div class="rounded-circle bg-primary bg-opacity-10 text-primary fw-bold d-flex align-items-center justify-content-center"
                                     style="width:40px; height:40px;">
-                                    MD
+                                    {{ a.nom[0] }}{{ a.prenom[0] }}
                                 </div>
                                 <div class="ms-3">
-                                    <div class="fw-semibold">Souheib Moud</div>
-                                    <small class="text-muted">M001</small>
+                                    <div class="fw-semibold">{{ a.nom }} {{ a.prenom }}</div>
+                                    <small class="text-muted">ID {{ a.id }}</small>
                                 </div>
                             </div>
                         </td>
 
                         <td>
-                            SouheibMoud08@gmail.com<br>
-                            <small class="text-muted">77 12 34 56</small>
-                        </td>
-
-                        <td>Licence-Informatique 1</td>
-
-                        <td>
-                            <div>2 en cours</div>
-                            <small class="text-muted">15 total</small>
+                            {{ a.email }}<br>
+                            <small class="text-muted">{{ a.telephone or '-' }}</small>
                         </td>
 
                         <td>
-                            <span class="badge bg-success">actif</span>
+                            {% if a.classe %}{{ a.classe }}{% else %}-{% endif %}
+                        </td>
+
+                        <td>
+                            {{ a.emprunts|length }} en cours
+                        </td>
+
+                        <td>
+                            {{ a.date_inscription.strftime('%d/%m/%Y') }}
                         </td>
 
                         <td class="d-flex gap-1">
-                            <button class="btn btn-outline-secondary btn-sm">
+                            <a href="#" class="btn btn-outline-secondary btn-sm">
                                 <i class="ri-eye-line me-1"></i> Voir
-                            </button>
-                            <button class="btn btn-outline-secondary btn-sm">
+                            </a>
+                            <a href="#" class="btn btn-outline-secondary btn-sm">
                                 <i class="ri-edit-line me-1"></i> Modifier
-                            </button>
-                            <button class="btn btn-outline-secondary btn-sm">
+                            </a>
+                            <a href="#" class="btn btn-outline-secondary btn-sm">
                                 <i class="ri-bookmark-line me-1"></i> Emprunts
-                            </button>
+                            </a>
                         </td>
                     </tr>
-
-                    <!-- Ajoute d'autres lignes ici... ça doit etre dynamique -->
-
+                    {% endfor %}
                 </tbody>
             </table>
 
         </div>
     </div>
 
-    <!-- Statistiques en bas -->
-    <div class="row g-4">
-
-        <div class="col-md-3">
-            <div class="card text-center shadow-sm">
-                <div class="card-body">
-                    <div class="bg-primary bg-opacity-10 p-3 rounded mb-2 d-inline-block">
-                        <i class="ri-user-line fs-3 text-primary"></i>
-                    </div>
-                    <h3 class="fw-bold">126</h3>
-                    <p class="text-muted">Total adhérents</p>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-3">
-            <div class="card text-center shadow-sm">
-                <div class="card-body">
-                    <div class="bg-success bg-opacity-10 p-3 rounded mb-2 d-inline-block">
-                        <i class="ri-check-line fs-3 text-success"></i>
-                    </div>
-                    <h3 class="fw-bold">118</h3>
-                    <p class="text-muted">Actifs</p>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-3">
-            <div class="card text-center shadow-sm">
-                <div class="card-body">
-                    <div class="bg-warning bg-opacity-10 p-3 rounded mb-2 d-inline-block">
-                        <i class="ri-bookmark-line fs-3 text-warning"></i>
-                    </div>
-                    <h3 class="fw-bold">45</h3>
-                    <p class="text-muted">Avec emprunts</p>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-3">
-            <div class="card text-center shadow-sm">
-                <div class="card-body">
-                    <div class="bg-danger bg-opacity-10 p-3 rounded mb-2 d-inline-block">
-                        <i class="ri-alert-line fs-3 text-danger"></i>
-                    </div>
-                    <h3 class="fw-bold">3</h3>
-                    <p class="text-muted">En retard</p>
-                </div>
-            </div>
-        </div>
-
-    </div>
-
 </div>
+
+<!-- Modal Nouvel Adhérent -->
+<div class="modal fade" id="nouvelAdherentModal" tabindex="-1" aria-labelledby="nouvelAdherentLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content shadow-lg">
+            <div class="modal-header">
+                <h5 class="modal-title fw-bold" id="nouvelAdherentLabel">
+                    <i class="ri-user-add-line me-1 text-primary"></i> Ajouter un nouvel adhérent
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+            </div>
+
+            <div class="modal-body">
+                <form id="formNouvelAdherent" method="POST" action="{{ url_for('adherents') }}">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Nom</label>
+                            <input type="text" name="nom" class="form-control" placeholder="Ex: Dubois" required>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Prénom</label>
+                            <input type="text" name="prenom" class="form-control" placeholder="Ex: Marie" required>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Email</label>
+                            <input type="email" name="email" class="form-control"
+                                placeholder="Ex: marie.dubois@ecole.fr" required>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Téléphone</label>
+                            <input type="text" name="telephone" class="form-control" placeholder="Ex: 01 23 45 67 89">
+                        </div>
+
+                        <!-- Nouvelle sélection Classe -->
+                        <div class="col-md-6">
+                            <label class="form-label">Classe</label>
+                            <select name="classe" class="form-select">
+                                <option>Licence FS</option>
+                                <option>Licence FLLSH</option>
+                                <option>Licence EG</option>
+                                <option>Licence FDEG</option>
+                            </select>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Annuler</button>
+                <button type="submit" class="btn btn-primary" form="formNouvelAdherent">Enregistrer</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 
 {% endblock %}

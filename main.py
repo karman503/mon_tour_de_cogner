@@ -45,12 +45,14 @@ class User(UserMixin, db.Model):
         print(f"Mot de passe : {password}")
         print(f"Résultat     : {'Succès' if result else 'Échec'}")
         return result
+
 class Adherent(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     nom = db.Column(db.String(100), nullable=False)
     prenom = db.Column(db.String(100), nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
     telephone = db.Column(db.String(20))
+    classe = db.Column(db.String(50))  # <- ajout de la classe
     date_inscription = db.Column(db.DateTime, default=datetime.utcnow)
     emprunts = db.relationship('Emprunt', backref='adherent', lazy=True)
 
@@ -213,7 +215,8 @@ def adherents():
             nom=request.form['nom'],
             prenom=request.form['prenom'],
             email=request.form['email'],
-            telephone=request.form['telephone']
+            telephone=request.form['telephone'],
+            classe=request.form.get('classe')  # <- ajout ici
         )
         db.session.add(nouveau_adherent)
         db.session.commit()
