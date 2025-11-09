@@ -7,7 +7,7 @@
     <!-- TITRE + SOUS-TITRE -->
     <div class="mb-4">
         <h2 class="fw-bold display-6 text-dark">Tableau de bord</h2>
-        <p class="text-muted">Bienvenue Dior, voici un aperçu de votre bibliothèque</p>
+        <p class="text-muted">Bienvenue {{ current_user.username }}, voici un aperçu de votre bibliothèque</p>
     </div>
 
     <!-- STAT CARDS -->
@@ -133,7 +133,9 @@
 
                     <div class="row g-3">
 
-                        <!-- Nouvel adhérent -->
+                        {% if current_user.role == "admin" %}
+                        <!-- ✅ Actions réservées aux admins -->
+
                         <div class="col-6">
                             <a href="{{ url_for('adherents') }}"
                                 class="btn btn-primary w-100 py-3 d-flex flex-column align-items-center">
@@ -142,7 +144,6 @@
                             </a>
                         </div>
 
-                        <!-- Nouvel emprunt -->
                         <div class="col-6">
                             <a href="{{ url_for('emprunts') }}"
                                 class="btn btn-primary w-100 py-3 d-flex flex-column align-items-center">
@@ -151,7 +152,9 @@
                             </a>
                         </div>
 
-                        <!-- Retour rapide -->
+                        {% endif %}
+
+                        <!-- ✅ Actions visibles pour tout le monde -->
                         <div class="col-6">
                             <a href="{{ url_for('emprunts') }}"
                                 class="btn btn-outline-secondary w-100 py-3 d-flex flex-column align-items-center">
@@ -160,7 +163,6 @@
                             </a>
                         </div>
 
-                        <!-- Voir stats -->
                         <div class="col-6">
                             <a href="{{ url_for('statistiques') }}"
                                 class="btn btn-outline-secondary w-100 py-3 d-flex flex-column align-items-center">
@@ -174,7 +176,6 @@
                 </div>
             </div>
         </div>
-
 
     </div>
 
