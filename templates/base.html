@@ -2,6 +2,7 @@
 
 <body class="{% if current_user.is_authenticated %}has-sidebar{% else %}no-sidebar{% endif %}">
     <main>
+
         {% if current_user.is_authenticated %}
         <!-- SIDEBAR -->
         <div class="sidebar shadow">
@@ -22,33 +23,39 @@
 
                 <!-- ✅ Visible pour TOUS -->
                 <a href="/dashboard" class="btn w-100 text-start d-flex align-items-center gap-3 px-3 py-2 
-               {% if title == 'Dashboard' %}bg-primary text-white{% else %}bg-light text-dark{% endif %}">
+            {% if title == 'Dashboard' %}bg-primary text-white{% else %}bg-light text-dark{% endif %}">
                     <i class="ri-dashboard-line"></i> Tableau de bord
                 </a>
 
-                <!-- ✅ Visible UNIQUEMENT pour ADMIN -->
+                <!-- ✅ Visible UNIQUEMENT POUR ADMIN -->
                 {% if current_user.role == 'admin' %}
 
                 <a href="/dashboard/adherents" class="btn w-100 text-start d-flex align-items-center gap-3 px-3 py-2 
-               {% if title == 'Adhérents' %}bg-primary text-white{% else %}bg-light text-dark{% endif %}">
+            {% if title == 'Adhérents' %}bg-primary text-white{% else %}bg-light text-dark{% endif %}">
                     <i class="ri-user-line"></i> Adhérents
                 </a>
 
                 <a href="/dashboard/emprunts" class="btn w-100 text-start d-flex align-items-center gap-3 px-3 py-2 
-               {% if title == 'Emprunts' %}bg-primary text-white{% else %}bg-light text-dark{% endif %}">
+            {% if title == 'Emprunts' %}bg-primary text-white{% else %}bg-light text-dark{% endif %}">
                     <i class="ri-bookmark-line"></i> Emprunts
+                </a>
+
+                <!-- ✅ ✅ NOUVEAU : MENU LIVRES -->
+                <a href="/dashboard/livres" class="btn w-100 text-start d-flex align-items-center gap-3 px-3 py-2
+            {% if title == 'Livres' %}bg-primary text-white{% else %}bg-light text-dark{% endif %}">
+                    <i class="ri-book-2-line"></i> Livres
                 </a>
 
                 {% endif %}
 
                 <!-- ✅ Visible pour TOUS -->
                 <a href="/dashboard/statistiques" class="btn w-100 text-start d-flex align-items-center gap-3 px-3 py-2 
-               {% if title == 'Statistiques' %}bg-primary text-white{% else %}bg-light text-dark{% endif %}">
+            {% if title == 'Statistiques' %}bg-primary text-white{% else %}bg-light text-dark{% endif %}">
                     <i class="ri-bar-chart-line"></i> Statistiques
                 </a>
 
                 <a href="/dashboard/parametres" class="btn w-100 text-start d-flex align-items-center gap-3 px-3 py-2 
-               {% if title == 'Paramètres' %}bg-primary text-white{% else %}bg-light text-dark{% endif %}">
+            {% if title == 'Paramètres' %}bg-primary text-white{% else %}bg-light text-dark{% endif %}">
                     <i class="ri-settings-line"></i> Paramètres
                 </a>
 
@@ -66,7 +73,7 @@
         <!-- CONTENT -->
         <div class="content {% if not current_user.is_authenticated %}w-100{% endif %}">
 
-            <!-- Messages Flash -->
+            <!-- ✅ Messages Flash -->
             {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
             <div class="container mt-3">
@@ -82,6 +89,7 @@
 
             {% block content %}{% endblock %}
         </div>
+
     </main>
 
     {% include "footer.html" %}

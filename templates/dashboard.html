@@ -1,179 +1,59 @@
 {% extends "base.html" %}
-
 {% block content %}
 
-<div class="container-fluid p-4">
+<div class="container-fluid">
 
-    <!-- TITRE + SOUS-TITRE -->
-    <div class="mb-4">
-        <h2 class="fw-bold display-6 text-dark">Tableau de bord</h2>
-        <p class="text-muted">Bienvenue {{ current_user.username }}, voici un aperçu de votre bibliothèque</p>
-    </div>
+    <h2 class="fw-bold mb-2">Tableau de bord</h2>
+    <p class="text-muted mb-4">Bienvenue, {{ current_user.username }}</p>
 
-    <!-- STAT CARDS -->
-    <div class="row g-4 mb-4">
+    <!-- ✅ Boutons rapides -->
+    <div class="d-flex flex-wrap gap-2 mb-4">
 
-        <!-- Total Livres -->
-        <div class="col-md-6 col-lg-3">
-            <div class="card text-white" style="background: linear-gradient(to right, #3b82f6, #2563eb);">
-                <div class="card-body d-flex justify-content-between align-items-center">
-                    <div>
-                        <p class="text-white-50 small mb-1">Total Livres</p>
-                        <h3 class="fw-bold">720</h3>
-                        <p class="text-white-50 small">+12 ce mois</p>
-                    </div>
-                    <div class="rounded bg-primary bg-opacity-50 p-3">
-                        <i class="ri-book-line fs-3"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
+        {% if current_user.role == 'admin' %}
+        <!-- ✅ Nouveau bouton rapide : Ajouter un Livre -->
+        <a href="{{ url_for('livres') }}" class="btn btn-primary">
+            <i class="ri-book-add-line me-1"></i> Ajouter un livre
+        </a>
+        {% endif %}
 
-        <!-- Adhérents -->
-        <div class="col-md-6 col-lg-3">
-            <div class="card text-white" style="background: linear-gradient(to right, #22c55e, #16a34a);">
-                <div class="card-body d-flex justify-content-between align-items-center">
-                    <div>
-                        <p class="text-white-50 small mb-1">Adhérents</p>
-                        <h3 class="fw-bold">126</h3>
-                        <p class="text-white-50 small">118 actifs</p>
-                    </div>
-                    <div class="rounded bg-success bg-opacity-50 p-3">
-                        <i class="ri-user-line fs-3"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <a href="{{ url_for('statistiques') }}" class="btn btn-outline-secondary">
+            <i class="ri-bar-chart-line me-1"></i> Statistiques
+        </a>
 
-        <!-- Emprunts actifs -->
-        <div class="col-md-6 col-lg-3">
-            <div class="card text-white" style="background: linear-gradient(to right, #f97316, #ea580c);">
-                <div class="card-body d-flex justify-content-between align-items-center">
-                    <div>
-                        <p class="text-white-50 small mb-1">Emprunts actifs</p>
-                        <h3 class="fw-bold">87</h3>
-                        <p class="text-white-50 small">12 en retard</p>
-                    </div>
-                    <div class="rounded bg-warning bg-opacity-50 p-3">
-                        <i class="ri-bookmark-line fs-3"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Réservations -->
-        <div class="col-md-6 col-lg-3">
-            <div class="card text-white" style="background: linear-gradient(to right, #a855f7, #7e22ce);">
-                <div class="card-body d-flex justify-content-between align-items-center">
-                    <div>
-                        <p class="text-white-50 small mb-1">Réservations</p>
-                        <h3 class="fw-bold">23</h3>
-                        <p class="text-white-50 small">8 en attente</p>
-                    </div>
-                    <div class="rounded bg-purple bg-opacity-50 p-3">
-                        <i class="ri-calendar-line fs-3"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <a href="{{ url_for('parametres') }}" class="btn btn-outline-secondary">
+            <i class="ri-settings-3-line me-1"></i> Paramètres
+        </a>
 
     </div>
 
-    <!-- RÉCENT + ACTIONS RAPIDES -->
+    <!-- ✅ Cartes d'informations -->
     <div class="row g-4">
 
-        <!-- Activité récente -->
-        <div class="col-lg-6">
-            <div class="card shadow-sm">
-                <div class="card-body">
-                    <h5 class="fw-semibold mb-4">Activité récente</h5>
-
-                    <div class="d-flex align-items-center p-3 rounded mb-3" style="background:#eff6ff;">
-                        <div class="rounded-circle bg-primary bg-opacity-25 p-2">
-                            <i class="ri-bookmark-line text-primary fs-5"></i>
-                        </div>
-                        <div class="ms-3 flex-grow-1">
-                            <p class="mb-0 fw-semibold">Nouvel emprunt</p>
-                            <small class="text-muted">Sahal Hassan - "cigaal Shidaad"</small>
-                        </div>
-                        <small class="text-muted">Il y a 5 min</small>
-                    </div>
-
-                    <div class="d-flex align-items-center p-3 rounded mb-3" style="background:#ecfdf5;">
-                        <div class="rounded-circle bg-success bg-opacity-25 p-2">
-                            <i class="ri-check-line text-success fs-5"></i>
-                        </div>
-                        <div class="ms-3 flex-grow-1">
-                            <p class="mb-0 fw-semibold">Retour effectué</p>
-                            <small class="text-muted">Souleiman Beille - "Miserables"</small>
-                        </div>
-                        <small class="text-muted">Il y a 15 min</small>
-                    </div>
-
-                    <div class="d-flex align-items-center p-3 rounded" style="background:#fefce8;">
-                        <div class="rounded-circle bg-warning bg-opacity-25 p-2">
-                            <i class="ri-user-add-line text-warning fs-5"></i>
-                        </div>
-                        <div class="ms-3 flex-grow-1">
-                            <p class="mb-0 fw-semibold">Nouvel adhérent</p>
-                            <small class="text-muted">Farah Elmi - Licence 2- Economie-Gestion</small>
-                        </div>
-                        <small class="text-muted">Il y a 1h</small>
-                    </div>
-
-                </div>
+        <div class="col-md-3">
+            <div class="card shadow-sm border-0 p-3">
+                <h5>Total des adhérents</h5>
+                <div class="display-6 fw-bold">{{ total_adherents }}</div>
             </div>
         </div>
 
-        <!-- Actions rapides -->
-        <div class="col-lg-6">
-            <div class="card shadow-sm">
-                <div class="card-body">
-                    <h5 class="fw-semibold mb-4">Actions rapides</h5>
+        <div class="col-md-3">
+            <div class="card shadow-sm border-0 p-3">
+                <h5>Livres disponibles</h5>
+                <div class="display-6 fw-bold">{{ livres_disponibles }}</div>
+            </div>
+        </div>
 
-                    <div class="row g-3">
+        <div class="col-md-3">
+            <div class="card shadow-sm border-0 p-3">
+                <h5>Emprunts en cours</h5>
+                <div class="display-6 fw-bold">{{ emprunts_en_cours }}</div>
+            </div>
+        </div>
 
-                        {% if current_user.role == "admin" %}
-                        <!-- ✅ Actions réservées aux admins -->
-
-                        <div class="col-6">
-                            <a href="{{ url_for('adherents') }}"
-                                class="btn btn-primary w-100 py-3 d-flex flex-column align-items-center">
-                                <i class="ri-user-add-line fs-2 mb-2"></i>
-                                Nouvel adhérent
-                            </a>
-                        </div>
-
-                        <div class="col-6">
-                            <a href="{{ url_for('emprunts') }}"
-                                class="btn btn-primary w-100 py-3 d-flex flex-column align-items-center">
-                                <i class="ri-bookmark-line fs-2 mb-2"></i>
-                                Nouvel emprunt
-                            </a>
-                        </div>
-
-                        {% endif %}
-
-                        <!-- ✅ Actions visibles pour tout le monde -->
-                        <div class="col-6">
-                            <a href="{{ url_for('emprunts') }}"
-                                class="btn btn-outline-secondary w-100 py-3 d-flex flex-column align-items-center">
-                                <i class="ri-check-line fs-2 mb-2"></i>
-                                Retour rapide
-                            </a>
-                        </div>
-
-                        <div class="col-6">
-                            <a href="{{ url_for('statistiques') }}"
-                                class="btn btn-outline-secondary w-100 py-3 d-flex flex-column align-items-center">
-                                <i class="ri-bar-chart-line fs-2 mb-2"></i>
-                                Voir stats
-                            </a>
-                        </div>
-
-                    </div>
-
-                </div>
+        <div class="col-md-3">
+            <div class="card shadow-sm border-0 p-3">
+                <h5>Total des livres</h5>
+                <div class="display-6 fw-bold">{{ total_livres }}</div>
             </div>
         </div>
 

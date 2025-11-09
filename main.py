@@ -3,6 +3,10 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
+import os
+from werkzeug.utils import secure_filename
+from flask_migrate import Migrate
+
 
 app = Flask(__name__)
 login_manager = LoginManager()
@@ -16,6 +20,11 @@ app.config['SECRET_KEY'] = 'votre_cle_secrete'
 
 # Initialisation de SQLAlchemy
 db = SQLAlchemy(app)
+migrate = Migrate(app, db)
+
+UPLOAD_FOLDER = "static/livres/"
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 # User loader pour Flask-Login
 @login_manager.user_loader
@@ -63,6 +72,10 @@ class Livre(db.Model):
     isbn = db.Column(db.String(13), unique=True)
     annee_publication = db.Column(db.Integer)
     categorie = db.Column(db.String(50))
+
+    resume = db.Column(db.Text)  # ✅ Résumé du livre
+    contenu_pdf = db.Column(db.String(255))  # ✅ Fichier PDF uploadé
+
     disponible = db.Column(db.Boolean, default=True)
     emprunts = db.relationship('Emprunt', backref='livre', lazy=True)
 
@@ -281,6 +294,48 @@ def emprunts():
         reservations=reservations_liste,
         now=datetime.utcnow()  # on passe l'objet datetime ici
     )
+
+@app.route("/dashboard/livres", methods=['GET', 'POST'])
+@login_required
+def livres():
+    if current_user.role != "admin":
+        flash("Accès non autorisé", "danger")
+        return redirect(url_for("dashboard"))
+
+    if request.method == "POST":
+        titre = request.form['titre']
+        auteur = request.form['auteur']
+        isbn = request.form['isbn']
+        annee = request.form['annee_publication']
+        categorie = request.form['categorie']
+        resume = request.form['resume']
+
+        # ✅ FICHIER PDF
+        fichier = request.files.get("contenu_pdf")
+        fichier_nom = None
+
+        if fichier:
+            fichier_nom = secure_filename(fichier.filename)
+            fichier.save(os.path.join(app.config['UPLOAD_FOLDER'], fichier_nom))
+
+        nouveau_livre = Livre(
+            titre=titre,
+            auteur=auteur,
+            isbn=isbn,
+            annee_publication=annee,
+            categorie=categorie,
+            resume=resume,
+            contenu_pdf=fichier_nom
+        )
+
+        db.session.add(nouveau_livre)
+        db.session.commit()
+
+        flash("Livre ajouté avec succès", "success")
+        return redirect(url_for("livres"))
+
+    livres_liste = Livre.query.all()
+    return render_template("livres.html", title="Livres", livres=livres_liste)
 
 @app.route("/dashboard/emprunts/retour/<int:emprunt_id>")
 @login_required
