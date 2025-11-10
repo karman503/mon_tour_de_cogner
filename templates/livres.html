@@ -21,10 +21,12 @@
             <table class="table table-hover align-middle">
                 <thead class="table-light">
                     <tr>
+                        <th>Image</th>
                         <th>Titre</th>
                         <th>Auteur</th>
                         <th>Catégorie</th>
                         <th>Année</th>
+                        <th>Statut</th>
                         <th>PDF</th>
                         <th>Actions</th>
                     </tr>
@@ -33,10 +35,25 @@
                 <tbody>
                     {% for l in livres %}
                     <tr>
+                        <td>
+                            {% if l.image_couverture %}
+                            <img src="{{ url_for('static', filename='images/couvertures/' + l.image_couverture) }}"
+                                alt="{{ l.titre }}" style="width: 50px; height: 70px; object-fit: cover;"
+                                class="rounded">
+                            {% else %}
+                            <img src="{{ url_for('static', filename='images/default-book.jpg') }}" alt="Default"
+                                style="width: 50px; height: 70px; object-fit: cover;" class="rounded">
+                            {% endif %}
+                        </td>
                         <td>{{ l.titre }}</td>
                         <td>{{ l.auteur }}</td>
                         <td>{{ l.categorie }}</td>
                         <td>{{ l.annee_publication }}</td>
+                        <td>
+                            <span class="badge {% if l.disponible %}bg-success{% else %}bg-danger{% endif %}">
+                                {% if l.disponible %}Disponible{% else %}Emprunté{% endif %}
+                            </span>
+                        </td>
                         <td>
                             {% if l.contenu_pdf %}
                             <a href="/static/livres/{{ l.contenu_pdf }}" class="btn btn-outline-primary btn-sm"
@@ -58,7 +75,6 @@
             </table>
         </div>
     </div>
-
 
 </div>
 
@@ -102,11 +118,15 @@
                         <div class="col-md-4">
                             <label class="form-label">Catégorie</label>
                             <select name="categorie" class="form-select">
-                                <option>Roman</option>
-                                <option>Science</option>
-                                <option>Culture</option>
-                                <option>Informatique</option>
-                                <option>Histoire</option>
+                                <option value="Littérature">Littérature</option>
+                                <option value="Sciences">Sciences</option>
+                                <option value="Histoire">Histoire</option>
+                                <option value="Fantasy">Fantasy</option>
+                                <option value="Science-Fiction">Science-Fiction</option>
+                                <option value="Philosophie">Philosophie</option>
+                                <option value="Roman">Roman</option>
+                                <option value="Culture">Culture</option>
+                                <option value="Informatique">Informatique</option>
                             </select>
                         </div>
 
@@ -118,6 +138,22 @@
                         <div class="col-12">
                             <label class="form-label">Contenu PDF</label>
                             <input type="file" name="contenu_pdf" accept="application/pdf" class="form-control">
+                        </div>
+
+                        <!-- Champ Image de couverture -->
+                        <div class="col-12">
+                            <label for="image_couverture" class="form-label">Image de couverture</label>
+                            <input type="file" class="form-control" id="image_couverture" name="image_couverture"
+                                accept=".jpg,.jpeg,.png,.gif,.webp">
+                            <div class="form-text">Formats acceptés: JPG, PNG, GIF, WEBP</div>
+                        </div>
+
+                        <!-- Aperçu de l'image -->
+                        <div class="col-12" id="imagePreview" style="display: none;">
+                            <label class="form-label">Aperçu de l'image</label>
+                            <div>
+                                <img id="preview" src="#" alt="Aperçu" class="img-thumbnail" style="max-height: 200px;">
+                            </div>
                         </div>
 
                     </div>
@@ -132,5 +168,26 @@
         </div>
     </div>
 </div>
+
+<!-- Script Aperçu Image -->
+<script>
+    document.getElementById('image_couverture').addEventListener('change', function (e) {
+        const preview = document.getElementById('preview');
+        const previewContainer = document.getElementById('imagePreview');
+
+        if (this.files && this.files[0]) {
+            const reader = new FileReader();
+
+            reader.onload = function (e) {
+                preview.src = e.target.result;
+                previewContainer.style.display = 'block';
+            }
+
+            reader.readAsDataURL(this.files[0]);
+        } else {
+            previewContainer.style.display = 'none';
+        }
+    });
+</script>
 
 {% endblock %}

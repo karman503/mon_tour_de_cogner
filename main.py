@@ -2,11 +2,10 @@ from flask import Flask, render_template, request, redirect, url_for, flash, ses
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
-from datetime import datetime
+from datetime import datetime, timedelta
 import os
 from werkzeug.utils import secure_filename
 from flask_migrate import Migrate
-
 
 app = Flask(__name__)
 login_manager = LoginManager()
@@ -18,13 +17,20 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:@localhost/bibliotheque'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = 'votre_cle_secrete'
 
+# Configuration des uploads
+UPLOAD_FOLDER = "static/livres/"
+COUVERTURE_FOLDER = "static/images/couvertures/"
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.config['COUVERTURE_FOLDER'] = COUVERTURE_FOLDER
+
+# Créer les dossiers s'ils n'existent pas
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+os.makedirs(COUVERTURE_FOLDER, exist_ok=True)
+
 # Initialisation de SQLAlchemy
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
-UPLOAD_FOLDER = "static/livres/"
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 # User loader pour Flask-Login
 @login_manager.user_loader
@@ -36,24 +42,21 @@ class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
-    password_hash = db.Column(db.String(255))  # Augmenté la taille pour le hash
-    role = db.Column(db.String(20), default='user')  # 'admin' ou 'user'
+    password_hash = db.Column(db.String(255))
+    role = db.Column(db.String(20), default='user')
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    # Lien avec le profil adhérent
+    adherent_id = db.Column(db.Integer, db.ForeignKey('adherent.id'))
+    adherent = db.relationship('Adherent', backref='user', uselist=False)
     
     def set_password(self, password):
         self.password_hash = generate_password_hash(password, method='pbkdf2:sha256')
-        print(f"Nouveau hash créé: {self.password_hash}")
         
     def check_password(self, password):
         if not self.password_hash or not password:
-            print("Erreur: password_hash ou password est vide")
             return False
-        result = check_password_hash(self.password_hash, password)
-        print(f"Vérification du mot de passe:")
-        print(f"Hash stocké   : {self.password_hash}")
-        print(f"Mot de passe : {password}")
-        print(f"Résultat     : {'Succès' if result else 'Échec'}")
-        return result
+        return check_password_hash(self.password_hash, password)
 
 class Adherent(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -61,7 +64,7 @@ class Adherent(db.Model):
     prenom = db.Column(db.String(100), nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
     telephone = db.Column(db.String(20))
-    classe = db.Column(db.String(50))  # <- ajout de la classe
+    classe = db.Column(db.String(50))
     date_inscription = db.Column(db.DateTime, default=datetime.utcnow)
     emprunts = db.relationship('Emprunt', backref='adherent', lazy=True)
 
@@ -72,10 +75,9 @@ class Livre(db.Model):
     isbn = db.Column(db.String(13), unique=True)
     annee_publication = db.Column(db.Integer)
     categorie = db.Column(db.String(50))
-
-    resume = db.Column(db.Text)  # ✅ Résumé du livre
-    contenu_pdf = db.Column(db.String(255))  # ✅ Fichier PDF uploadé
-
+    resume = db.Column(db.Text)
+    contenu_pdf = db.Column(db.String(255))
+    image_couverture = db.Column(db.String(255))  # Nouveau champ pour l'image
     disponible = db.Column(db.Boolean, default=True)
     emprunts = db.relationship('Emprunt', backref='livre', lazy=True)
 
@@ -86,9 +88,9 @@ class Emprunt(db.Model):
     date_emprunt = db.Column(db.DateTime, default=datetime.utcnow)
     date_retour_prevue = db.Column(db.DateTime, nullable=False)
     date_retour_effective = db.Column(db.DateTime)
-    status = db.Column(db.String(20), default='en_cours')  # en_cours, retourne, retard
-    prolongations = db.Column(db.Integer, default=0)  # ✅ Ajout de l'attribut prolongations
-    amende = db.Column(db.Float, default=0.0)  # ✅ Ajout de l'attribut amende
+    status = db.Column(db.String(20), default='en_cours')
+    prolongations = db.Column(db.Integer, default=0)
+    amende = db.Column(db.Float, default=0.0)
 
 # Route pour créer un admin (à retirer en production)
 @app.route('/setup/admin', methods=['GET', 'POST'])
@@ -119,22 +121,115 @@ with app.app_context():
 def index():
     return render_template("index.html", title="Accueil")
 
-@app.route("/catalogue", methods=['GET', 'POST'])
+# CATALOGUE - ACCÈS PUBLIC (connecté ou non)
+@app.route("/catalogue")
 def catalogue():
-    if request.method == 'POST':
-        nouveau_livre = Livre(
-            titre=request.form['titre'],
-            auteur=request.form['auteur'],
-            isbn=request.form['isbn'],
-            annee_publication=request.form['annee'],
-            categorie=request.form['categorie']
+    # Récupérer les paramètres de filtrage
+    categorie = request.args.get('categorie', 'Toutes')
+    statut = request.args.get('statut', 'Tous')
+    recherche = request.args.get('recherche', '')
+    
+    # Construire la requête de base
+    query = Livre.query
+    
+    # Appliquer les filtres
+    if categorie != 'Toutes':
+        query = query.filter(Livre.categorie == categorie)
+    
+    if statut != 'Tous':
+        if statut == 'disponible':
+            query = query.filter(Livre.disponible == True)
+        elif statut == 'emprunté':
+            query = query.filter(Livre.disponible == False)
+    
+    if recherche:
+        query = query.filter(
+            db.or_(
+                Livre.titre.ilike(f'%{recherche}%'),
+                Livre.auteur.ilike(f'%{recherche}%'),
+                Livre.isbn.ilike(f'%{recherche}%')
+            )
         )
-        db.session.add(nouveau_livre)
-        db.session.commit()
+    
+    livres = query.all()
+    
+    # Récupérer les emprunts en cours si l'utilisateur est connecté
+    livres_empruntes = []
+    if current_user.is_authenticated:
+        emprunts_utilisateur = Emprunt.query.filter_by(
+            adherent_id=current_user.id,
+            date_retour_effective=None
+        ).all()
+        livres_empruntes = [emp.livre_id for emp in emprunts_utilisateur]
+    
+    return render_template(
+        "catalogue.html", 
+        title="Catalogue",
+        livres=livres, 
+        livres_empruntes=livres_empruntes,
+        current_user=current_user,
+        categorie_selected=categorie,
+        statut_selected=statut,
+        recherche_term=recherche
+    )
+
+# EMPRUNTER LIVRE - UNIQUEMENT POUR CONNECTÉS
+@app.route('/emprunter_livre/<int:livre_id>', methods=['POST'])
+@login_required
+def emprunter_livre(livre_id):
+    livre = Livre.query.get_or_404(livre_id)
+    
+    # Vérifier si le livre est disponible
+    if not livre.disponible:
+        flash('Ce livre n\'est pas disponible pour le moment', 'error')
         return redirect(url_for('catalogue'))
     
-    livres = Livre.query.all()
-    return render_template("catalogue.html", title="Catalogue", livres=livres)
+    # Vérifier si l'utilisateur a déjà emprunté ce livre
+    emprunt_existant = Emprunt.query.filter_by(
+        adherent_id=current_user.id,
+        livre_id=livre_id,
+        date_retour_effective=None
+    ).first()
+    
+    if emprunt_existant:
+        flash('Vous avez déjà emprunté ce livre', 'error')
+        return redirect(url_for('catalogue'))
+    
+    # Créer un nouvel emprunt
+    nouvel_emprunt = Emprunt(
+        adherent_id=current_user.id,
+        livre_id=livre_id,
+        date_retour_prevue=datetime.utcnow() + timedelta(days=14),
+        status='en_cours'
+    )
+    
+    # Marquer le livre comme non disponible
+    livre.disponible = False
+    
+    try:
+        db.session.add(nouvel_emprunt)
+        db.session.commit()
+        flash(f'Livre "{livre.titre}" emprunté avec succès! Date de retour: {nouvel_emprunt.date_retour_prevue.strftime("%d/%m/%Y")}', 'success')
+    except Exception as e:
+        db.session.rollback()
+        flash('Erreur lors de l\'emprunt', 'error')
+    
+    return redirect(url_for('catalogue'))
+
+# MES EMPRUNTS - UNIQUEMENT POUR CONNECTÉS
+@app.route("/mes_emprunts")
+@login_required
+def mes_emprunts():
+    emprunts_utilisateur = Emprunt.query.filter_by(
+        adherent_id=current_user.id
+    ).order_by(Emprunt.date_emprunt.desc()).all()
+    
+    return render_template(
+        "mes_emprunts.html",
+        title="Mes Emprunts",
+        emprunts=emprunts_utilisateur,
+        now=datetime.utcnow()
+    )
 
 @app.route("/propos")
 def propos():
@@ -182,7 +277,7 @@ def register():
 @app.route("/connexion", methods=['GET', 'POST'])
 def login():
     if current_user.is_authenticated:
-        return redirect(url_for('dashboard'))
+        return redirect(url_for('catalogue'))  # Rediriger vers catalogue si déjà connecté
     
     if request.method == 'POST':
         username = request.form.get('username')
@@ -198,7 +293,8 @@ def login():
                 login_user(user)
                 flash('Connexion réussie!', 'success')
                 next_page = request.args.get('next')
-                return redirect(next_page or url_for('dashboard'))
+                # Rediriger vers la page demandée ou le CATALOGUE par défaut
+                return redirect(next_page or url_for('catalogue'))
             else:
                 print(f"Hash stocké: {user.password_hash}")
                 print(f"Mot de passe fourni: {password}")
@@ -216,10 +312,10 @@ def logout():
     return redirect(url_for('index'))
 
 
+# DASHBOARD - GARDER EXISTANT
 @app.route("/dashboard")
 @login_required
 def dashboard():
-    # Calcul des statistiques pour le dashboard
     total_livres = Livre.query.count()
     livres_disponibles = Livre.query.filter_by(disponible=True).count()
     total_adherents = Adherent.query.count()
@@ -235,6 +331,7 @@ def dashboard():
         emprunts_en_cours=emprunts_en_cours
     )
 
+# Routes admin (gardez vos routes existantes avec modifications)
 @app.route("/dashboard/adherents", methods=['GET', 'POST'])
 @login_required
 def adherents():
@@ -244,7 +341,7 @@ def adherents():
             prenom=request.form['prenom'],
             email=request.form['email'],
             telephone=request.form['telephone'],
-            classe=request.form.get('classe')  # <- ajout ici
+            classe=request.form.get('classe')
         )
         db.session.add(nouveau_adherent)
         db.session.commit()
@@ -252,7 +349,6 @@ def adherents():
     
     adherents_liste = Adherent.query.all()
     return render_template("adherents.html", title="Adhérents", adherents=adherents_liste)
-
 
 @app.route("/dashboard/emprunts", methods=['GET', 'POST'])
 @login_required
@@ -282,21 +378,11 @@ def emprunts():
 
         return redirect(url_for('emprunts'))
 
-    # Requêtes pour l'affichage
     emprunts_liste = Emprunt.query.all()
     adherents_liste = Adherent.query.all()
     livres_disponibles = Livre.query.filter_by(disponible=True).all()
-    reservations_liste = [
-        {
-            'livre': Livre.query.first(),
-            'adherent': Adherent.query.first(),
-            'date_reservation': datetime.utcnow(),
-            'priorite': 1,
-            'status': 'en_attente'
-        }
-    ]
+    reservations_liste = []
 
-    # ✅ On passe today pour les champs date dans le template
     return render_template(
         "emprunts.html",
         title="Emprunts",
@@ -305,9 +391,10 @@ def emprunts():
         livres=livres_disponibles,
         reservations=reservations_liste,
         now=datetime.utcnow(),
-        today=datetime.utcnow().date()  # <-- ajouté ici
+        today=datetime.utcnow().date()
     )
 
+# LIVRES - ADMIN (AJOUTER LE CHAMP IMAGE)
 @app.route("/dashboard/livres", methods=['GET', 'POST'])
 @login_required
 def livres():
@@ -323,14 +410,33 @@ def livres():
         categorie = request.form['categorie']
         resume = request.form['resume']
 
-        # ✅ FICHIER PDF
-        fichier = request.files.get("contenu_pdf")
-        fichier_nom = None
+        # GESTION DU FICHIER PDF
+        fichier_pdf = request.files.get("contenu_pdf")
+        fichier_pdf_nom = None
 
-        if fichier:
-            fichier_nom = secure_filename(fichier.filename)
-            fichier.save(os.path.join(app.config['UPLOAD_FOLDER'], fichier_nom))
+        if fichier_pdf and fichier_pdf.filename:
+            if fichier_pdf.filename.lower().endswith('.pdf'):
+                fichier_pdf_nom = secure_filename(fichier_pdf.filename)
+                fichier_pdf.save(os.path.join(app.config['UPLOAD_FOLDER'], fichier_pdf_nom))
+            else:
+                flash("Le fichier doit être au format PDF", "error")
+                return redirect(url_for("livres"))
 
+        # GESTION DE L'IMAGE DE COUVERTURE
+        fichier_image = request.files.get("image_couverture")
+        fichier_image_nom = None
+
+        if fichier_image and fichier_image.filename:
+            allowed_extensions = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
+            if '.' in fichier_image.filename and \
+               fichier_image.filename.rsplit('.', 1)[1].lower() in allowed_extensions:
+                fichier_image_nom = secure_filename(fichier_image.filename)
+                fichier_image.save(os.path.join(app.config['COUVERTURE_FOLDER'], fichier_image_nom))
+            else:
+                flash("Le fichier image doit être au format PNG, JPG, JPEG, GIF ou WEBP", "error")
+                return redirect(url_for("livres"))
+
+        # Créer le nouveau livre
         nouveau_livre = Livre(
             titre=titre,
             auteur=auteur,
@@ -338,13 +444,18 @@ def livres():
             annee_publication=annee,
             categorie=categorie,
             resume=resume,
-            contenu_pdf=fichier_nom
+            contenu_pdf=fichier_pdf_nom,
+            image_couverture=fichier_image_nom
         )
 
-        db.session.add(nouveau_livre)
-        db.session.commit()
+        try:
+            db.session.add(nouveau_livre)
+            db.session.commit()
+            flash("Livre ajouté avec succès", "success")
+        except Exception as e:
+            db.session.rollback()
+            flash(f"Erreur lors de l'ajout du livre: {str(e)}", "error")
 
-        flash("Livre ajouté avec succès", "success")
         return redirect(url_for("livres"))
 
     livres_liste = Livre.query.all()
